@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include <termios.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "kdp_serial.h"
 #include "ip_sum.h"
@@ -88,8 +89,18 @@ int working_poll(struct pollfd fds[], nfds_t nfds, int timeout)
     }
 
     r = select(maxfd, &readfds, &writefds, &errorfds, timeout != -1 ? &tv : NULL);
-    if (r <= 0)
+    if (r < 0) {
+        // treat as timeout 
+        if (errno == EAGAIN || errno == EINTR) 
+            return 0;
+
         return r;
+    }
+    // timeout
+    else if (r == 0) {
+        return r;
+    }
+
     r = 0;
 
     for (i = 0; i < nfds; ++i) {
@@ -278,7 +289,7 @@ int main(int argc, char **argv)
         { STDIN_FILENO, POLLIN, 0}
     };
 
-    while (working_poll(pollfds, 3, -1)) {
+    while (working_poll(pollfds, 3, -1) >= 0) {
         ssize_t bytesReceived = 0;
 
         if ((pollfds[0].revents & POLLIN) != 0 ) {
