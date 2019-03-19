@@ -4,7 +4,7 @@
 <body>
 <h1>README for SerialKDPProxy</h1>
 
-<p>Copyright 2009 David Elliott.  All Rights Reserved.</p>
+<p>Copyright 2009 David Elliott. All Rights Reserved.</p>
 
 <h2>About SerialKDPProxy</h2>
 
